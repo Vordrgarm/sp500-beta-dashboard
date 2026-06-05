@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>S&P 500 Beta Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h1>S&P 500 Beta Dashboard</h1>
+      <span class="subtitle">Administración Financiera II — Proyecto Final</span>
+    </div>
+    <div class="header-right">
+      <select id="periodSelect">
+        <option value="6mo">6 months</option>
+        <option value="1y" selected>1 year</option>
+        <option value="2y">2 years</option>
+      </select>
+      <button id="loadBtn" onclick="loadAll()">Load 50 Stocks</button>
+      <span id="timestamp"></span>
+    </div>
+  </header>
+
+  <div class="summary-cards">
+    <div class="card"><div class="label">Stocks loaded</div><div class="val" id="s-count">—</div></div>
+    <div class="card"><div class="label">Avg beta (calculated)</div><div class="val" id="s-avgbeta">—</div></div>
+    <div class="card"><div class="label">Avg delta vs Yahoo</div><div class="val" id="s-delta">—</div></div>
+    <div class="card highlight-high"><div class="label">Most aggressive</div><div class="val" id="s-high">—</div></div>
+    <div class="card highlight-low"><div class="label">Most defensive</div><div class="val" id="s-low">—</div></div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-box">
+      <div class="chart-title">Beta comparison — calculated vs Yahoo Finance</div>
+      <div class="chart-wrap"><canvas id="betaChart" role="img" aria-label="Bar chart comparing calculated beta vs Yahoo Finance beta for all 50 stocks"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">Beta distribution by sector</div>
+      <div class="chart-wrap"><canvas id="sectorChart" role="img" aria-label="Bar chart showing average beta by sector"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <div class="table-header">
+      <input id="search" placeholder="Filter by ticker, company or sector..." oninput="filterTable()">
+      <div class="legend">
+        <span class="dot high"></span> β &gt; 1.2 aggressive
+        <span class="dot mid"></span> β 0.8–1.2 neutral
+        <span class="dot low"></span> β &lt; 0.8 defensive
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="betaTable">
+        <thead>
+          <tr>
+            <th onclick="sortBy('ticker')">Ticker ↕</th>
+            <th onclick="sortBy('name')">Company ↕</th>
+            <th onclick="sortBy('sector')">Sector ↕</th>
+            <th onclick="sortBy('beta_calc')">Beta (calc) ↕</th>
+            <th onclick="sortBy('beta_yahoo')">Beta (Yahoo) ↕</th>
+            <th onclick="sortBy('delta')">Delta ↕</th>
+            <th>Risk level</th>
+            <th>Verify on YF</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <p>Beta calculated using daily returns over selected period · SPY used as market proxy · <a href="https://finance.yahoo.com" target="_blank">Yahoo Finance</a> beta shown for corroboration · Data via yfinance</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
