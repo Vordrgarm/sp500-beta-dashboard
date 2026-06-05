@@ -1,4 +1,4 @@
-const API = "";
+const API = "https://web-production-38abb.up.railway.app";
 let allData = [];
 let sortKey = "ticker";
 let sortAsc = true;
