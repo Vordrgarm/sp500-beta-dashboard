@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- MAIN DASHBOARD VIEW -->
+  <!-- MAIN VIEW -->
   <div id="mainView">
     <header>
       <div class="header-left">
@@ -17,40 +17,33 @@
         <span class="subtitle">Administración Financiera II — Proyecto Final</span>
       </div>
       <div class="header-right">
-        <select id="periodSelect">
-          <option value="1y">1 year</option>
-          <option value="2y">2 years</option>
-          <option value="5y" selected>5 years (Yahoo Finance standard)</option>
-        </select>
         <button id="loadBtn" onclick="loadAll()">Load 50 Stocks</button>
         <span id="timestamp"></span>
       </div>
     </header>
 
-    <!-- METHODOLOGY BANNER -->
     <div class="methodology-banner">
       <div class="method-block">
         <div class="method-title">📐 Our calculation method</div>
         <div class="method-text">
-          We compute Beta using <strong>OLS regression</strong> of daily stock returns against SPY (S&P 500 ETF) returns over the selected period.
-          Formula: <code>β = Cov(Rᵢ, Rₘ) / Var(Rₘ)</code> — where Rᵢ are daily stock returns and Rₘ are daily SPY returns.
+          Beta via <strong>OLS regression</strong> of monthly returns vs ^GSPC over 5 years.
+          Formula: <code>β = Cov(Rᵢ, Rₘ) / Var(Rₘ)</code> — sample variance (ddof=1).
         </div>
       </div>
       <div class="method-divider"></div>
       <div class="method-block">
         <div class="method-title">📊 Yahoo Finance method</div>
         <div class="method-text">
-          Yahoo Finance calculates Beta using <strong>monthly returns over 5 years</strong> vs the S&P 500 index, sourced from Refinitiv.
-          Selecting <strong>5 years</strong> above makes our calculation most comparable to theirs.
+          Monthly returns · 5 years · S&P 500 index via <strong>Refinitiv</strong>.
+          Our method replicates this exactly. Residual deltas stem from their proprietary data feed.
         </div>
       </div>
       <div class="method-divider"></div>
       <div class="method-block">
-        <div class="method-title">🔍 Delta column</div>
+        <div class="method-title">📈 Historical analysis</div>
         <div class="method-text">
-          Delta = |β calculated − β Yahoo|. Small deltas (&lt;0.1) confirm alignment.
-          Larger deltas reflect differences in <strong>return frequency</strong> (daily vs monthly)
-          and <strong>market proxy</strong> (SPY ETF vs S&P 500 index).
+          Click any stock row to see its <strong>rolling 5-year beta evolution</strong>
+          across all available history — revealing how market events shaped each stock's risk profile.
         </div>
       </div>
     </div>
@@ -65,7 +58,7 @@
 
     <div class="chart-section">
       <div class="chart-box">
-        <div class="chart-title">Beta comparison — calculated vs Yahoo Finance (sorted high → low)</div>
+        <div class="chart-title">Beta comparison — calculated (monthly · ^GSPC · 5y) vs Yahoo Finance</div>
         <div class="chart-wrap"><canvas id="betaChart"></canvas></div>
       </div>
       <div class="chart-box">
@@ -81,7 +74,9 @@
           <span class="dot high"></span> β &gt; 1.2 aggressive
           <span class="dot mid"></span> β 0.8–1.2 neutral
           <span class="dot low"></span> β &lt; 0.8 defensive
-          <span style="margin-left:12px;color:#8b949e;font-size:11px;">Click any row to see full company detail</span>
+          <span style="margin-left:12px;color:#8b949e;font-size:11px;">
+            Click any row for full historical analysis
+          </span>
         </div>
       </div>
       <div class="table-wrap">
@@ -104,11 +99,15 @@
     </div>
 
     <footer>
-      <p>Beta calculated via OLS regression using daily returns · SPY used as market proxy · Yahoo Finance beta uses monthly returns over 5 years vs S&P 500 index · Data via yfinance</p>
+      <p>
+        Beta: OLS regression · Monthly returns · 5-year window · ^GSPC market proxy ·
+        Sample variance (ddof=1) · Matches Yahoo Finance methodology ·
+        Residual delta from Refinitiv vs yfinance data differences
+      </p>
     </footer>
   </div>
 
-  <!-- SINGLE COMPANY DETAIL VIEW -->
+  <!-- DETAIL VIEW -->
   <div id="detailView" style="display:none;">
     <div class="detail-header">
       <button class="back-btn" onclick="showMain()">← Back to dashboard</button>
@@ -120,24 +119,31 @@
       <a id="d-verify" href="#" target="_blank" class="yf-link">View on Yahoo Finance ↗</a>
     </div>
 
-    <!-- METHODOLOGY EXPLANATION FOR SINGLE STOCK -->
-    <div class="methodology-banner" style="margin:0 28px 20px;">
+    <div class="methodology-banner" style="margin:20px 28px;">
       <div class="method-block">
-        <div class="method-title">📐 How Beta is calculated for this stock</div>
+        <div class="method-title">📐 Beta calculation</div>
         <div class="method-text">
-          Daily returns for this stock and SPY are computed from adjusted closing prices over the selected period.
-          Beta is the slope of the OLS regression line: <code>β = Cov(Rᵢ, Rₘ) / Var(Rₘ)</code>.
-          A β of <strong id="d-beta-inline">—</strong> means this stock historically moves
-          <strong id="d-beta-interp">—</strong> relative to the S&P 500.
+          Monthly returns vs ^GSPC · 5-year window · sample variance (ddof=1).
+          Current β = <strong id="d-beta-inline">—</strong> —
+          this stock <strong id="d-beta-interp">—</strong>.
         </div>
       </div>
       <div class="method-divider"></div>
       <div class="method-block">
-        <div class="method-title">🔍 Comparison with Yahoo Finance</div>
-        <div class="method-text" id="d-comparison-text">
-          Yahoo Finance reports a beta of <strong id="d-yf-inline">—</strong> for this stock,
-          calculated using monthly returns over 5 years vs the S&P 500 index.
-          The delta between both methods is <strong id="d-delta-inline">—</strong>.
+        <div class="method-title">🔍 vs Yahoo Finance</div>
+        <div class="method-text">
+          Yahoo reports β = <strong id="d-yf-inline">—</strong> (Refinitiv).
+          Delta = <strong id="d-delta-inline">—</strong>.
+          Difference from proprietary price adjustments, not methodology error.
+        </div>
+      </div>
+      <div class="method-divider"></div>
+      <div class="method-block">
+        <div class="method-title">📅 Historical data available</div>
+        <div class="method-text">
+          <strong id="d-years-available">—</strong> years of price history available.
+          Rolling beta snapshots computed at <strong>1-year intervals</strong>,
+          each using a 5-year window — showing how this stock's risk profile evolved over time.
         </div>
       </div>
     </div>
@@ -153,19 +159,37 @@
       <div class="card"><div class="label">52w Low</div><div class="val" id="d-low52">—</div></div>
     </div>
 
+    <!-- HISTORICAL BETA EVOLUTION -->
+    <div style="padding: 0 28px 20px;">
+      <div class="chart-box">
+        <div class="chart-title">
+          Rolling 5-year beta evolution — each point is a 5y window ending at that date
+          <span id="d-history-note" style="color:#d29922;font-size:11px;margin-left:8px;"></span>
+        </div>
+        <div class="chart-wrap" style="height:300px;">
+          <canvas id="rollingBetaChart"></canvas>
+        </div>
+        <div class="event-legend">
+          <span class="event-dot crisis"></span> 2008 Financial Crisis
+          <span class="event-dot covid"></span> COVID-19 crash (2020)
+          <span class="event-dot rate"></span> Rate hike cycle (2022)
+        </div>
+      </div>
+    </div>
+
     <div class="detail-charts">
       <div class="chart-box" style="flex:2">
-        <div class="chart-title">Monthly returns vs SPY — used in Beta calculation</div>
+        <div class="chart-title">Monthly returns — last 5 years (used in current beta calculation)</div>
         <div class="chart-wrap"><canvas id="returnsChart"></canvas></div>
       </div>
       <div class="chart-box" style="flex:1">
-        <div class="chart-title">Beta interpretation guide</div>
+        <div class="chart-title">Beta interpretation</div>
         <div class="beta-guide">
           <div class="guide-row" id="gi-aggressive">
             <div class="guide-dot high"></div>
             <div>
               <div class="guide-label">β &gt; 1.2 — Aggressive</div>
-              <div class="guide-desc">Moves more than the market. Higher risk, higher potential return.</div>
+              <div class="guide-desc">Moves more than the market. Higher risk and potential return.</div>
             </div>
           </div>
           <div class="guide-row" id="gi-neutral">
@@ -179,22 +203,21 @@
             <div class="guide-dot low"></div>
             <div>
               <div class="guide-label">β &lt; 0.8 — Defensive</div>
-              <div class="guide-desc">Moves less than the market. Lower risk, lower volatility.</div>
+              <div class="guide-desc">Moves less than the market. Lower volatility.</div>
             </div>
           </div>
           <div class="guide-row" id="gi-negative">
             <div class="guide-dot neg"></div>
             <div>
               <div class="guide-label">β &lt; 0 — Inverse</div>
-              <div class="guide-desc">Moves opposite to the market. Rare in S&P 500 stocks.</div>
+              <div class="guide-desc">Moves opposite to the market. Rare in S&P 500.</div>
             </div>
           </div>
           <div class="current-beta-box">
-            <div class="label">This stock's beta</div>
+            <div class="label">Current beta</div>
             <div class="val" id="d-beta-big">—</div>
             <div class="beta-bar-wrap">
               <div class="beta-bar-track">
-                <div class="beta-bar-fill" id="betaBarFill"></div>
                 <div class="beta-bar-marker" id="betaBarMarker"></div>
               </div>
               <div class="beta-bar-labels">
