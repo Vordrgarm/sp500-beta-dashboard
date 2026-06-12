@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- MAIN VIEW -->
+  <!-- ═══════════════ MAIN VIEW ═══════════════ -->
   <div id="mainView">
     <header>
       <div class="header-left">
@@ -30,8 +30,8 @@
           We use the formula <code>β = Cov(Rᵢ, Rₘ) / Var(Rₘ)</code>, where
           <strong>Rᵢ</strong> is the stock's monthly return,
           <strong>Rₘ</strong> is the S&P 500 index monthly return, and
-          <strong>Cov / Var</strong> captures how much the stock's movements
-          are explained by market movements. We use 5 years of monthly data —
+          <strong>Cov / Var</strong> captures how much of the stock's movement
+          is explained by the market. We use 5 years of monthly data —
           the same window used by Yahoo Finance.
         </div>
       </div>
@@ -50,13 +50,11 @@
       <div class="method-block">
         <div class="method-title">📈 Historical Beta evolution</div>
         <div class="method-text">
-          Click any stock to see how its Beta has evolved across its full
-          price history. Major market events —
-          <strong>2008 Financial Crisis</strong>,
-          <strong>COVID-19 crash (2020)</strong>,
-          <strong>2022 rate hike cycle</strong>, and the
-          <strong>2025 recession fears</strong> — are marked on the chart
-          so you can see how each shock reshaped a stock's risk profile.
+          Click any stock to see how its Beta has changed over its full price history.
+          Major market events — <strong>2008 Financial Crisis</strong>,
+          <strong>COVID-19 crash</strong>, <strong>2022 rate hike cycle</strong>,
+          and <strong>2025 recession fears</strong> — are marked so you can see
+          how each shock reshaped each stock's risk profile over time.
         </div>
       </div>
     </div>
@@ -113,15 +111,16 @@
 
     <footer>
       <p>
-        Beta calculated via OLS regression · Monthly returns · 5-year window ·
+        Beta via OLS regression · Monthly returns · 5-year window ·
         S&P 500 index as market benchmark · Methodology matches Yahoo Finance ·
-        Minor deltas from Refinitiv vs open-source data feed differences
+        Minor deltas from Refinitiv vs open-source data differences
       </p>
     </footer>
   </div>
 
-  <!-- DETAIL VIEW -->
+  <!-- ═══════════════ DETAIL VIEW ═══════════════ -->
   <div id="detailView" style="display:none;">
+
     <div class="detail-header">
       <button class="back-btn" onclick="showMain()">← Back to dashboard</button>
       <div class="detail-title-wrap">
@@ -132,7 +131,8 @@
       <a id="d-verify" href="#" target="_blank" class="yf-link">Verify on Yahoo Finance ↗</a>
     </div>
 
-    <div class="detail-cards" style="padding: 20px 28px;">
+    <!-- KPI cards -->
+    <div class="detail-cards">
       <div class="card"><div class="label">Beta (calculated)</div><div class="val" id="d-beta-calc">—</div></div>
       <div class="card"><div class="label">Beta (Yahoo Finance)</div><div class="val" id="d-beta-yahoo">—</div></div>
       <div class="card"><div class="label">Delta</div><div class="val" id="d-delta">—</div></div>
@@ -143,47 +143,45 @@
       <div class="card"><div class="label">52w Low</div><div class="val" id="d-low52">—</div></div>
     </div>
 
-    <!-- ANALYSIS SECTION -->
-    <div style="padding: 0 28px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;" id="analysisSection">
-      <div class="chart-box">
-        <div class="chart-title">📋 Current status analysis</div>
-        <p id="d-analysis-current" style="font-size:13px;color:#8b949e;line-height:1.7;margin-top:4px;"></p>
+    <!-- Analysis text boxes -->
+    <div class="analysis-section">
+      <div class="analysis-box">
+        <div class="chart-title">📋 Current status</div>
+        <p id="d-analysis-current">Loading...</p>
       </div>
-      <div class="chart-box">
-        <div class="chart-title">📜 Historical Beta evolution analysis</div>
-        <p id="d-analysis-history" style="font-size:13px;color:#8b949e;line-height:1.7;margin-top:4px;"></p>
+      <div class="analysis-box">
+        <div class="chart-title">📜 Historical Beta analysis</div>
+        <p id="d-analysis-history">Loading...</p>
       </div>
     </div>
 
-    <!-- ROLLING BETA CHART -->
-    <div style="padding: 0 28px 20px;">
+    <!-- Rolling Beta evolution -->
+    <div class="rolling-section">
       <div class="chart-box">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-          <div class="chart-title" style="margin:0;">
+        <div class="rolling-header">
+          <span class="rolling-title">
             Rolling 5-year Beta evolution
-            <span style="font-weight:400;font-size:11px;margin-left:6px;">
-              — each point = Beta calculated over the 5 years ending at that date
-            </span>
-          </div>
-          <span id="d-history-note" style="color:#d29922;font-size:11px;"></span>
+            <span style="font-weight:400;"> — each point = Beta over the 5 years ending at that date</span>
+          </span>
+          <span class="rolling-note" id="d-history-note"></span>
         </div>
-        <div class="event-legend" style="margin-bottom:12px;">
+        <div class="event-legend">
           <span class="event-dot crisis"></span> 2008 Financial Crisis
-          <span class="event-dot covid" style="margin-left:12px;"></span> COVID-19 crash (2020)
-          <span class="event-dot rate" style="margin-left:12px;"></span> Rate hike cycle (2022)
-          <span class="event-dot recession" style="margin-left:12px;"></span> Recession fears (2025)
+          <span class="event-dot covid"    style="margin-left:10px;"></span> COVID-19 crash (2020)
+          <span class="event-dot rate"     style="margin-left:10px;"></span> Rate hike cycle (2022)
+          <span class="event-dot recession" style="margin-left:10px;"></span> Recession fears (2025)
         </div>
-        <div class="chart-wrap" style="height:320px;">
+        <div class="rolling-wrap">
           <canvas id="rollingBetaChart"></canvas>
         </div>
-        <p style="font-size:11px;color:#8b949e;margin-top:10px;">
-          The vertical dashed lines mark when each event reached peak market impact.
-          Beta values around those dates reflect the 5-year window that includes that period.
+        <p class="rolling-caption">
+          Colored bands mark when each event reached peak market impact.
+          Notice how Beta shifts as turbulent periods enter and exit the 5-year calculation window.
         </p>
       </div>
     </div>
 
-    <!-- MONTHLY RETURNS + INTERPRETATION -->
+    <!-- Monthly returns + interpretation -->
     <div class="detail-charts">
       <div class="chart-box" style="flex:2">
         <div class="chart-title">Monthly returns — last 5 years (data used in current Beta calculation)</div>
@@ -196,7 +194,7 @@
             <div class="guide-dot high"></div>
             <div>
               <div class="guide-label">β &gt; 1.2 — Aggressive</div>
-              <div class="guide-desc">Moves more than the market. If the market drops 10%, this stock typically drops more than 12%.</div>
+              <div class="guide-desc">Moves more than the market. A 10% market drop typically means a 12%+ drop for this stock.</div>
             </div>
           </div>
           <div class="guide-row" id="gi-neutral">
@@ -235,7 +233,8 @@
         </div>
       </div>
     </div>
-  </div>
+
+  </div><!-- end detailView -->
 
   <script src="app.js"></script>
 </body>

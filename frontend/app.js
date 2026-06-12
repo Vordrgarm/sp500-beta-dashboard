@@ -7,34 +7,11 @@ let sectorChart  = null;
 let returnsChart = null;
 let rollingChart = null;
 
-// Market events — dates are when each event reached peak market impact
-// The rolling chart shows beta of the 5-year window ENDING at each date,
-// so events appear as inflection points in the line as they enter/exit the window
 const MARKET_EVENTS = [
-  {
-    date:  "2013-09-30",
-    label: "2008 Crisis\n(fully in window)",
-    color: "#f85149",
-    dash:  [6, 3]
-  },
-  {
-    date:  "2020-03-31",
-    label: "COVID crash",
-    color: "#d29922",
-    dash:  [6, 3]
-  },
-  {
-    date:  "2022-12-31",
-    label: "Rate hikes peak",
-    color: "#9e6bdb",
-    dash:  [6, 3]
-  },
-  {
-    date:  "2025-03-31",
-    label: "Recession fears",
-    color: "#3fb950",
-    dash:  [6, 3]
-  }
+  { date: "2013-09-30", label: "2008 Crisis",      color: "#f85149", cls: "crisis"    },
+  { date: "2020-03-31", label: "COVID crash",       color: "#d29922", cls: "covid"     },
+  { date: "2022-12-31", label: "Rate hikes peak",   color: "#9e6bdb", cls: "rate"      },
+  { date: "2025-03-31", label: "Recession fears",   color: "#3fb950", cls: "recession" }
 ];
 
 // ─── MAIN VIEW ────────────────────────────────────────────────
@@ -96,12 +73,12 @@ function renderBetaChart(data) {
       datasets: [
         {
           label: "Beta (our calculation)",
-          data: sorted.map(d => d.beta_calc),
+          data:  sorted.map(d => d.beta_calc),
           backgroundColor: "#388bfd", borderRadius: 2
         },
         {
           label: "Beta (Yahoo Finance)",
-          data: sorted.map(d => d.beta_yahoo),
+          data:  sorted.map(d => d.beta_yahoo),
           backgroundColor: "#f8514966", borderRadius: 2
         }
       ]
@@ -112,13 +89,7 @@ function renderBetaChart(data) {
         legend: { display: true, labels: { color: "#8b949e", font: { size: 11 } } },
         tooltip: {
           callbacks: {
-            afterBody: (items) => {
-              const d = sorted[items[0].dataIndex];
-              return [
-                "Delta: " + (d.delta ?? "—"),
-                d.analysis_current ? "\n" + d.analysis_current.substring(0, 80) + "..." : ""
-              ];
-            }
+            afterBody: (items) => "Delta: " + (sorted[items[0].dataIndex].delta ?? "—")
           }
         }
       },
@@ -217,16 +188,12 @@ async function openDetail(ticker) {
   document.getElementById("detailView").style.display = "block";
   window.scrollTo(0, 0);
 
-  const fields = [
-    "d-ticker","d-name","d-beta-calc","d-beta-yahoo","d-delta",
-    "d-risk","d-price","d-marketcap","d-high52","d-low52","d-beta-big"
-  ];
-  fields.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = "Loading...";
-  });
-  document.getElementById("d-analysis-current").textContent = "Loading analysis...";
-  document.getElementById("d-analysis-history").textContent = "Loading analysis...";
+  // Reset fields
+  ["d-ticker","d-name","d-beta-calc","d-beta-yahoo","d-delta",
+   "d-risk","d-price","d-marketcap","d-high52","d-low52","d-beta-big"
+  ].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = "Loading..."; });
+  document.getElementById("d-analysis-current").textContent = "Loading...";
+  document.getElementById("d-analysis-history").textContent = "Loading...";
   document.getElementById("d-history-note").textContent     = "";
 
   try {
@@ -254,39 +221,35 @@ async function openDetail(ticker) {
 
     const mc = d.marketCap;
     document.getElementById("d-marketcap").textContent =
-      mc ? (mc >= 1e12 ? "$" + (mc / 1e12).toFixed(2) + "T" :
-            mc >= 1e9  ? "$" + (mc / 1e9).toFixed(2)  + "B" :
-                         "$" + (mc / 1e6).toFixed(2)  + "M") : "—";
+      mc ? (mc >= 1e12 ? "$" + (mc/1e12).toFixed(2) + "T" :
+            mc >= 1e9  ? "$" + (mc/1e9).toFixed(2)  + "B" :
+                         "$" + (mc/1e6).toFixed(2)  + "M") : "—";
 
     const riskLabel = d.beta_calc > 1.2 ? "Aggressive 🔴" : d.beta_calc < 0.8 ? "Defensive 🟢" : "Neutral 🟡";
     const riskClass = d.beta_calc > 1.2 ? "risk-high"     : d.beta_calc < 0.8 ? "risk-low"     : "risk-mid";
-    const riskEl = document.getElementById("d-risk");
+    const riskEl    = document.getElementById("d-risk");
     riskEl.textContent = riskLabel;
     riskEl.className   = "val " + riskClass;
 
-    // Analysis text
+    // Analysis
     document.getElementById("d-analysis-current").textContent =
-      d.analysis_current || "No analysis available for this stock.";
+      d.analysis_current || "No analysis available.";
     document.getElementById("d-analysis-history").textContent =
-      d.analysis_history || "No historical analysis available for this stock.";
+      d.analysis_history || "No historical analysis available.";
 
     // History note
     const yrs = d.years_available || 0;
-    if (yrs < 5) {
-      document.getElementById("d-history-note").textContent =
-        "⚠ Less than 5 years of data available";
-    } else {
-      document.getElementById("d-history-note").textContent =
-        "✓ " + yrs.toFixed(1) + " years of price history available";
-    }
+    document.getElementById("d-history-note").textContent =
+      yrs < 5
+        ? "⚠ Less than 5 years of data available"
+        : "✓ " + yrs.toFixed(1) + " years of price history";
 
-    // Beta bar
+    // Beta bar + guide
     document.getElementById("d-beta-big").textContent = bc;
     document.getElementById("d-beta-big").className   = "val " + riskClass;
     const pct = Math.min(Math.max(((d.beta_calc + 1) / 4) * 100, 0), 100);
     document.getElementById("betaBarMarker").style.left = pct + "%";
 
-    // Active guide row
     ["gi-aggressive","gi-neutral","gi-defensive","gi-negative"].forEach(id =>
       document.getElementById(id).classList.remove("active"));
     document.getElementById(
@@ -295,59 +258,38 @@ async function openDetail(ticker) {
       d.beta_calc < 0.8 ? "gi-defensive"  : "gi-neutral"
     ).classList.add("active");
 
-    // ── Rolling beta chart with event annotations ──
+    // ── Rolling Beta chart ──
     const rolling = d.rolling_betas || [];
     if (rollingChart) rollingChart.destroy();
 
-    // Build vertical line annotations for events within data range
-    const eventPluginData = [];
-    if (rolling.length > 0) {
-      const firstDate = rolling[0].date;
-      const lastDate  = rolling[rolling.length - 1].date;
-      MARKET_EVENTS.forEach(ev => {
-        if (ev.date >= firstDate && ev.date <= lastDate) {
-          eventPluginData.push(ev);
-        }
-      });
-    }
+    const betaVals = rolling.map(r => r.beta).filter(v => v != null);
+    const minY     = Math.min(...betaVals, 0) - 0.15;
+    const maxY     = Math.max(...betaVals, 1.5) + 0.15;
 
-    // We draw events as extra datasets (vertical lines via scatter points)
-    // because Chart.js annotation plugin isn't loaded — we simulate with
-    // point datasets at min/max y for each event date
-    const betaValues = rolling.map(r => r.beta).filter(v => v != null);
-    const minY = Math.min(...betaValues, 0) - 0.2;
-    const maxY = Math.max(...betaValues, 2) + 0.2;
+    // Find which events fall within this stock's data range
+    const firstDate = rolling.length ? rolling[0].date : "";
+    const lastDate  = rolling.length ? rolling[rolling.length - 1].date : "";
+    const visibleEvents = MARKET_EVENTS.filter(ev =>
+      ev.date >= firstDate && ev.date <= lastDate
+    );
 
-    const eventDatasets = eventPluginData.map(ev => ({
-      label:           ev.label.replace("\n", " "),
-      data:            rolling.map(r => r.date === ev.date ? { x: r.date, y: maxY } : null).filter(Boolean),
-      type:            "scatter",
-      pointStyle:      "line",
-      pointRadius:     0,
-      borderColor:     ev.color,
-      backgroundColor: ev.color,
-      showLine:        false,
-    }));
-
-    // Build vertical line simulation: for each event, insert two points at min and max
-    // and draw them as a line segment using a line dataset with only those two points
-    const verticalLineDatasets = eventPluginData.map(ev => {
-      const idx = rolling.findIndex(r => r.date >= ev.date);
-      const dateLabel = idx >= 0 ? rolling[idx].date : null;
-      if (!dateLabel) return null;
+    // Event band datasets — thin semi-transparent bars at each event date
+    const eventDatasets = visibleEvents.map(ev => {
+      const closestIdx = rolling.findIndex(r => r.date >= ev.date);
+      const useDate    = closestIdx >= 0 ? rolling[closestIdx].date : null;
+      if (!useDate) return null;
       return {
-        label:           ev.label.split("\n")[0],
-        data:            rolling.map(r => r.date === dateLabel
-          ? null
-          : null
-        ),
-        type:            "line",
-        borderColor:     ev.color,
-        borderWidth:     1.5,
-        borderDash:      ev.dash,
-        pointRadius:     0,
-        fill:            false,
-        tension:         0,
+        label:              ev.label,
+        data:               rolling.map(r => r.date === useDate ? maxY - minY : null),
+        type:               "bar",
+        backgroundColor:    ev.color + "28",
+        borderColor:        ev.color + "99",
+        borderWidth:        1,
+        borderSkipped:      false,
+        barPercentage:      0.08,
+        categoryPercentage: 1,
+        base:               minY,
+        order:              0
       };
     }).filter(Boolean);
 
@@ -357,34 +299,18 @@ async function openDetail(ticker) {
         labels: rolling.map(r => r.date),
         datasets: [
           {
-            label:           "Rolling 5-year Beta",
-            data:            rolling.map(r => r.beta),
-            borderColor:     "#388bfd",
-            backgroundColor: "#388bfd18",
-            borderWidth:     2.5,
-            pointRadius:     4,
+            label:            "Rolling 5-year Beta",
+            data:             rolling.map(r => r.beta),
+            borderColor:      "#388bfd",
+            backgroundColor:  "#388bfd18",
+            borderWidth:      2.5,
+            pointRadius:      4,
             pointHoverRadius: 7,
-            fill:            true,
-            tension:         0.35,
-            order:           10
+            fill:             true,
+            tension:          0.35,
+            order:            10
           },
-          // Simulated vertical event lines as thin tall bar datasets
-          ...eventPluginData.map((ev, i) => {
-            const closestIdx = rolling.findIndex(r => r.date >= ev.date);
-            const useDate    = closestIdx >= 0 ? rolling[closestIdx].date : null;
-            return {
-              label:           ev.label.replace("\n", " "),
-              data:            rolling.map(r => r.date === useDate ? maxY : null),
-              type:            "bar",
-              backgroundColor: ev.color + "33",
-              borderColor:     ev.color,
-              borderWidth:     1,
-              borderSkipped:   false,
-              barPercentage:   0.05,
-              categoryPercentage: 1,
-              order:           i + 1
-            };
-          })
+          ...eventDatasets
         ]
       },
       options: {
@@ -396,44 +322,40 @@ async function openDetail(ticker) {
             display: true,
             labels: {
               color: "#8b949e",
-              font: { size: 11 },
-              filter: (item) => item.datasetIndex === 0 || eventPluginData.some(ev =>
-                item.text === ev.label.replace("\n", " ")
-              )
+              font:  { size: 11 },
+              generateLabels: (chart) => {
+                const labels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                return labels.map(l => {
+                  const ev = visibleEvents.find(e => e.label === l.text);
+                  if (ev) { l.fillStyle = ev.color; l.strokeStyle = ev.color; }
+                  return l;
+                });
+              }
             }
           },
           tooltip: {
-            filter: (item) => item.datasetIndex === 0,
+            filter: item => item.datasetIndex === 0,
             callbacks: {
               label: ctx => "Beta = " + ctx.parsed.y.toFixed(4),
               afterLabel: ctx => {
                 const b = ctx.parsed.y;
-                return b > 1.2 ? "→ Aggressive (above market)" :
-                       b < 0   ? "→ Inverse (moves opposite market)" :
-                       b < 0.8 ? "→ Defensive (below market)" :
-                                 "→ Neutral (tracks market)";
+                return b > 1.2 ? "→ Aggressive" :
+                       b < 0   ? "→ Inverse"    :
+                       b < 0.8 ? "→ Defensive"  : "→ Neutral";
               }
             }
           }
         },
         scales: {
           x: {
-            ticks: {
-              color: "#8b949e",
-              font: { size: 10 },
-              maxRotation: 45,
-              maxTicksLimit: 15
-            },
-            grid: { color: "#21262d" }
+            ticks: { color: "#8b949e", font: { size: 10 }, maxRotation: 45, maxTicksLimit: 14 },
+            grid:  { color: "#21262d" }
           },
           y: {
             min: minY,
             max: maxY,
-            ticks: {
-              color: "#8b949e",
-              callback: v => "β " + v.toFixed(2)
-            },
-            grid: { color: "#21262d" },
+            ticks: { color: "#8b949e", callback: v => "β " + v.toFixed(2) },
+            grid:  { color: "#21262d" },
             title: { display: true, text: "Beta coefficient", color: "#8b949e" }
           }
         }
