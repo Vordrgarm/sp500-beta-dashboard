@@ -35,7 +35,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 .method-block { flex: 1; padding: 16px 20px; }
 .method-divider { width: 1px; background: var(--border); flex-shrink: 0; }
 .method-title { font-size: 12px; font-weight: 600; color: var(--blue); margin-bottom: 6px; }
-.method-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.method-text { font-size: 12px; color: var(--text2); line-height: 1.7; }
 .method-text code {
   background: var(--bg3); padding: 1px 6px; border-radius: 4px;
   font-size: 11px; color: var(--text); font-family: 'Courier New', monospace;
@@ -84,6 +84,15 @@ th {
   border-bottom: 1px solid var(--border);
 }
 th:hover { color: var(--text); }
+td { padding: 10px 14px; border-bottom: 1px solid var.table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--bg3); }
+th {
+  padding: 10px 14px; text-align: left; font-size: 12px; font-weight: 500;
+  color: var(--text2); cursor: pointer; white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+th:hover { color: var(--text); }
 td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--bg3); cursor: pointer; }
@@ -121,23 +130,24 @@ footer {
 
 .detail-cards {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px; padding: 0 28px 20px;
+  gap: 12px;
 }
 .detail-charts { display: flex; gap: 16px; padding: 0 28px 28px; flex-wrap: wrap; }
 .detail-charts .chart-box { min-width: 280px; }
 .detail-charts .chart-wrap { height: 280px; }
 
 .event-legend {
-  display: flex; align-items: center; gap: 16px; margin-top: 10px;
-  font-size: 11px; color: var(--text2);
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: 6px; font-size: 11px; color: var(--text2);
 }
 .event-dot {
   display: inline-block; width: 10px; height: 10px;
-  border-radius: 50%; margin-right: 4px;
+  border-radius: 50%; margin-right: 3px; flex-shrink: 0;
 }
-.event-dot.crisis { background: #f85149; }
-.event-dot.covid  { background: #d29922; }
-.event-dot.rate   { background: #9e6bdb; }
+.event-dot.crisis    { background: #f85149; }
+.event-dot.covid     { background: #d29922; }
+.event-dot.rate      { background: #9e6bdb; }
+.event-dot.recession { background: #3fb950; }
 
 .beta-guide { display: flex; flex-direction: column; gap: 10px; }
 .guide-row {
@@ -151,7 +161,7 @@ footer {
 .guide-dot.low  { background: var(--green); }
 .guide-dot.neg  { background: #9e6bdb; }
 .guide-label { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
-.guide-desc  { font-size: 11px; color: var(--text2); line-height: 1.4; }
+.guide-desc  { font-size: 11px; color: var(--text2); line-height: 1.5; }
 
 .current-beta-box {
   margin-top: 6px; padding: 14px; background: var(--bg3);
@@ -174,8 +184,15 @@ footer {
   font-size: 10px; color: var(--text2);
 }
 
-@media (max-width: 768px) {
+#analysisSection .chart-box p {
+  font-size: 13px; color: var(--text2); line-height: 1.75;
+}
+
+@media (max-width: 900px) {
   .chart-section { grid-template-columns: 1fr; }
+  #analysisSection { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 768px) {
   .methodology-banner { flex-direction: column; }
   .method-divider { width: 100%; height: 1px; }
   .detail-charts { flex-direction: column; }

@@ -24,33 +24,46 @@
 
     <div class="methodology-banner">
       <div class="method-block">
-        <div class="method-title">📐 Our calculation method</div>
+        <div class="method-title">📐 How we calculate Beta</div>
         <div class="method-text">
-          Beta via <strong>OLS regression</strong> of monthly returns vs ^GSPC over 5 years.
-          Formula: <code>β = Cov(Rᵢ, Rₘ) / Var(Rₘ)</code> — sample variance (ddof=1).
+          Beta measures how much a stock moves relative to the overall market.
+          We use the formula <code>β = Cov(Rᵢ, Rₘ) / Var(Rₘ)</code>, where
+          <strong>Rᵢ</strong> is the stock's monthly return,
+          <strong>Rₘ</strong> is the S&P 500 index monthly return, and
+          <strong>Cov / Var</strong> captures how much the stock's movements
+          are explained by market movements. We use 5 years of monthly data —
+          the same window used by Yahoo Finance.
         </div>
       </div>
       <div class="method-divider"></div>
       <div class="method-block">
-        <div class="method-title">📊 Yahoo Finance method</div>
+        <div class="method-title">📊 How Yahoo Finance calculates Beta</div>
         <div class="method-text">
-          Monthly returns · 5 years · S&P 500 index via <strong>Refinitiv</strong>.
-          Our method replicates this exactly. Residual deltas stem from their proprietary data feed.
+          Yahoo Finance uses the same 5-year monthly return methodology, but
+          sources its price data from <strong>Refinitiv</strong>, a professional
+          financial data provider. Small differences in how dividends and
+          corporate actions are adjusted produce minor discrepancies —
+          these are data source differences, not calculation errors.
         </div>
       </div>
       <div class="method-divider"></div>
       <div class="method-block">
-        <div class="method-title">📈 Historical analysis</div>
+        <div class="method-title">📈 Historical Beta evolution</div>
         <div class="method-text">
-          Click any stock row to see its <strong>rolling 5-year beta evolution</strong>
-          across all available history — revealing how market events shaped each stock's risk profile.
+          Click any stock to see how its Beta has evolved across its full
+          price history. Major market events —
+          <strong>2008 Financial Crisis</strong>,
+          <strong>COVID-19 crash (2020)</strong>,
+          <strong>2022 rate hike cycle</strong>, and the
+          <strong>2025 recession fears</strong> — are marked on the chart
+          so you can see how each shock reshaped a stock's risk profile.
         </div>
       </div>
     </div>
 
     <div class="summary-cards">
       <div class="card"><div class="label">Stocks loaded</div><div class="val" id="s-count">—</div></div>
-      <div class="card"><div class="label">Avg beta (calculated)</div><div class="val" id="s-avgbeta">—</div></div>
+      <div class="card"><div class="label">Avg Beta (calculated)</div><div class="val" id="s-avgbeta">—</div></div>
       <div class="card"><div class="label">Avg delta vs Yahoo</div><div class="val" id="s-delta">—</div></div>
       <div class="card highlight-high"><div class="label">Most aggressive β</div><div class="val" id="s-high">—</div></div>
       <div class="card highlight-low"><div class="label">Most defensive β</div><div class="val" id="s-low">—</div></div>
@@ -58,11 +71,11 @@
 
     <div class="chart-section">
       <div class="chart-box">
-        <div class="chart-title">Beta comparison — calculated (monthly · ^GSPC · 5y) vs Yahoo Finance</div>
+        <div class="chart-title">Beta comparison — our calculation vs Yahoo Finance (sorted highest to lowest)</div>
         <div class="chart-wrap"><canvas id="betaChart"></canvas></div>
       </div>
       <div class="chart-box">
-        <div class="chart-title">Average beta by sector</div>
+        <div class="chart-title">Average Beta by sector</div>
         <div class="chart-wrap"><canvas id="sectorChart"></canvas></div>
       </div>
     </div>
@@ -75,7 +88,7 @@
           <span class="dot mid"></span> β 0.8–1.2 neutral
           <span class="dot low"></span> β &lt; 0.8 defensive
           <span style="margin-left:12px;color:#8b949e;font-size:11px;">
-            Click any row for full historical analysis
+            Click any row for full analysis and historical evolution
           </span>
         </div>
       </div>
@@ -100,9 +113,9 @@
 
     <footer>
       <p>
-        Beta: OLS regression · Monthly returns · 5-year window · ^GSPC market proxy ·
-        Sample variance (ddof=1) · Matches Yahoo Finance methodology ·
-        Residual delta from Refinitiv vs yfinance data differences
+        Beta calculated via OLS regression · Monthly returns · 5-year window ·
+        S&P 500 index as market benchmark · Methodology matches Yahoo Finance ·
+        Minor deltas from Refinitiv vs open-source data feed differences
       </p>
     </footer>
   </div>
@@ -116,39 +129,10 @@
         <span id="d-name"></span>
         <span id="d-sector" class="sector-badge"></span>
       </div>
-      <a id="d-verify" href="#" target="_blank" class="yf-link">View on Yahoo Finance ↗</a>
+      <a id="d-verify" href="#" target="_blank" class="yf-link">Verify on Yahoo Finance ↗</a>
     </div>
 
-    <div class="methodology-banner" style="margin:20px 28px;">
-      <div class="method-block">
-        <div class="method-title">📐 Beta calculation</div>
-        <div class="method-text">
-          Monthly returns vs ^GSPC · 5-year window · sample variance (ddof=1).
-          Current β = <strong id="d-beta-inline">—</strong> —
-          this stock <strong id="d-beta-interp">—</strong>.
-        </div>
-      </div>
-      <div class="method-divider"></div>
-      <div class="method-block">
-        <div class="method-title">🔍 vs Yahoo Finance</div>
-        <div class="method-text">
-          Yahoo reports β = <strong id="d-yf-inline">—</strong> (Refinitiv).
-          Delta = <strong id="d-delta-inline">—</strong>.
-          Difference from proprietary price adjustments, not methodology error.
-        </div>
-      </div>
-      <div class="method-divider"></div>
-      <div class="method-block">
-        <div class="method-title">📅 Historical data available</div>
-        <div class="method-text">
-          <strong id="d-years-available">—</strong> years of price history available.
-          Rolling beta snapshots computed at <strong>1-year intervals</strong>,
-          each using a 5-year window — showing how this stock's risk profile evolved over time.
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-cards">
+    <div class="detail-cards" style="padding: 20px 28px;">
       <div class="card"><div class="label">Beta (calculated)</div><div class="val" id="d-beta-calc">—</div></div>
       <div class="card"><div class="label">Beta (Yahoo Finance)</div><div class="val" id="d-beta-yahoo">—</div></div>
       <div class="card"><div class="label">Delta</div><div class="val" id="d-delta">—</div></div>
@@ -159,62 +143,85 @@
       <div class="card"><div class="label">52w Low</div><div class="val" id="d-low52">—</div></div>
     </div>
 
-    <!-- HISTORICAL BETA EVOLUTION -->
-    <div style="padding: 0 28px 20px;">
+    <!-- ANALYSIS SECTION -->
+    <div style="padding: 0 28px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;" id="analysisSection">
       <div class="chart-box">
-        <div class="chart-title">
-          Rolling 5-year beta evolution — each point is a 5y window ending at that date
-          <span id="d-history-note" style="color:#d29922;font-size:11px;margin-left:8px;"></span>
-        </div>
-        <div class="chart-wrap" style="height:300px;">
-          <canvas id="rollingBetaChart"></canvas>
-        </div>
-        <div class="event-legend">
-          <span class="event-dot crisis"></span> 2008 Financial Crisis
-          <span class="event-dot covid"></span> COVID-19 crash (2020)
-          <span class="event-dot rate"></span> Rate hike cycle (2022)
-        </div>
+        <div class="chart-title">📋 Current status analysis</div>
+        <p id="d-analysis-current" style="font-size:13px;color:#8b949e;line-height:1.7;margin-top:4px;"></p>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">📜 Historical Beta evolution analysis</div>
+        <p id="d-analysis-history" style="font-size:13px;color:#8b949e;line-height:1.7;margin-top:4px;"></p>
       </div>
     </div>
 
+    <!-- ROLLING BETA CHART -->
+    <div style="padding: 0 28px 20px;">
+      <div class="chart-box">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+          <div class="chart-title" style="margin:0;">
+            Rolling 5-year Beta evolution
+            <span style="font-weight:400;font-size:11px;margin-left:6px;">
+              — each point = Beta calculated over the 5 years ending at that date
+            </span>
+          </div>
+          <span id="d-history-note" style="color:#d29922;font-size:11px;"></span>
+        </div>
+        <div class="event-legend" style="margin-bottom:12px;">
+          <span class="event-dot crisis"></span> 2008 Financial Crisis
+          <span class="event-dot covid" style="margin-left:12px;"></span> COVID-19 crash (2020)
+          <span class="event-dot rate" style="margin-left:12px;"></span> Rate hike cycle (2022)
+          <span class="event-dot recession" style="margin-left:12px;"></span> Recession fears (2025)
+        </div>
+        <div class="chart-wrap" style="height:320px;">
+          <canvas id="rollingBetaChart"></canvas>
+        </div>
+        <p style="font-size:11px;color:#8b949e;margin-top:10px;">
+          The vertical dashed lines mark when each event reached peak market impact.
+          Beta values around those dates reflect the 5-year window that includes that period.
+        </p>
+      </div>
+    </div>
+
+    <!-- MONTHLY RETURNS + INTERPRETATION -->
     <div class="detail-charts">
       <div class="chart-box" style="flex:2">
-        <div class="chart-title">Monthly returns — last 5 years (used in current beta calculation)</div>
+        <div class="chart-title">Monthly returns — last 5 years (data used in current Beta calculation)</div>
         <div class="chart-wrap"><canvas id="returnsChart"></canvas></div>
       </div>
       <div class="chart-box" style="flex:1">
-        <div class="chart-title">Beta interpretation</div>
+        <div class="chart-title">Beta interpretation guide</div>
         <div class="beta-guide">
           <div class="guide-row" id="gi-aggressive">
             <div class="guide-dot high"></div>
             <div>
               <div class="guide-label">β &gt; 1.2 — Aggressive</div>
-              <div class="guide-desc">Moves more than the market. Higher risk and potential return.</div>
+              <div class="guide-desc">Moves more than the market. If the market drops 10%, this stock typically drops more than 12%.</div>
             </div>
           </div>
           <div class="guide-row" id="gi-neutral">
             <div class="guide-dot mid"></div>
             <div>
               <div class="guide-label">β 0.8–1.2 — Neutral</div>
-              <div class="guide-desc">Moves roughly in line with the market.</div>
+              <div class="guide-desc">Moves roughly in line with the overall market.</div>
             </div>
           </div>
           <div class="guide-row" id="gi-defensive">
             <div class="guide-dot low"></div>
             <div>
               <div class="guide-label">β &lt; 0.8 — Defensive</div>
-              <div class="guide-desc">Moves less than the market. Lower volatility.</div>
+              <div class="guide-desc">Moves less than the market. Provides cushion during downturns.</div>
             </div>
           </div>
           <div class="guide-row" id="gi-negative">
             <div class="guide-dot neg"></div>
             <div>
               <div class="guide-label">β &lt; 0 — Inverse</div>
-              <div class="guide-desc">Moves opposite to the market. Rare in S&P 500.</div>
+              <div class="guide-desc">Tends to rise when the market falls. Rare in the S&P 500.</div>
             </div>
           </div>
           <div class="current-beta-box">
-            <div class="label">Current beta</div>
+            <div class="label">This stock's Beta</div>
             <div class="val" id="d-beta-big">—</div>
             <div class="beta-bar-wrap">
               <div class="beta-bar-track">
