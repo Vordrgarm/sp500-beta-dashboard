@@ -51,10 +51,8 @@
         <div class="method-title">📈 Historical Beta evolution</div>
         <div class="method-text">
           Click any stock to see how its Beta has changed over its full price history.
-          Major market events — <strong>2008 Financial Crisis</strong>,
-          <strong>COVID-19 crash</strong>, <strong>2022 rate hike cycle</strong>,
-          and <strong>2025 recession fears</strong> — are marked so you can see
-          how each shock reshaped each stock's risk profile over time.
+          Major market events are shown as colored segments directly on the Beta line —
+          each color represents a specific crisis period at its exact real-world dates.
         </div>
       </div>
     </div>
@@ -143,7 +141,7 @@
       <div class="card"><div class="label">52w Low</div><div class="val" id="d-low52">—</div></div>
     </div>
 
-    <!-- Analysis text boxes -->
+    <!-- Analysis boxes -->
     <div class="analysis-section">
       <div class="analysis-box">
         <div class="chart-title">📋 Current status</div>
@@ -161,27 +159,32 @@
         <div class="rolling-header">
           <span class="rolling-title">
             Rolling 5-year Beta evolution
-            <span style="font-weight:400;"> — each point = Beta over the 5 years ending at that date</span>
+            <span style="font-weight:400;">
+              — line color shows the market event active at each exact date
+            </span>
           </span>
           <span class="rolling-note" id="d-history-note"></span>
         </div>
         <div class="event-legend">
-          <span class="event-dot crisis"></span> 2008 Financial Crisis
-          <span class="event-dot covid"    style="margin-left:10px;"></span> COVID-19 crash (2020)
-          <span class="event-dot rate"     style="margin-left:10px;"></span> Rate hike cycle (2022)
-          <span class="event-dot recession" style="margin-left:10px;"></span> Recession fears (2025)
+          <span class="event-dot" style="background:#388bfd;"></span> No event (normal)
+          <span class="event-dot crisis"    style="margin-left:10px;"></span> 2008 Financial Crisis (Dec 2007 – Jun 2009)
+          <span class="event-dot covid"     style="margin-left:10px;"></span> COVID-19 (Nov 2019 – May 2023)
+          <span class="event-dot rate"      style="margin-left:10px;"></span> Rate hike cycle (Mar 2022 – Jul 2023)
+          <span class="event-dot recession" style="margin-left:10px;"></span> Recession fears (Jan 2025 – present)
+          <span class="event-dot oilwar"    style="margin-left:10px;"></span> 2026 Oil War (Feb 2026 – present)
         </div>
         <div class="rolling-wrap">
           <canvas id="rollingBetaChart"></canvas>
         </div>
         <p class="rolling-caption">
-          Colored bands mark when each event reached peak market impact.
-          Notice how Beta shifts as turbulent periods enter and exit the 5-year calculation window.
+          Each point represents the Beta calculated over the 5-year window ending at that date.
+          The line color reflects which market event was occurring at that exact moment in time.
+          During the COVID + rate hike overlap (Mar 2022 – May 2023), colors alternate between both events.
         </p>
       </div>
     </div>
 
-    <!-- Monthly returns + interpretation -->
+    <!-- Monthly returns + guide -->
     <div class="detail-charts">
       <div class="chart-box" style="flex:2">
         <div class="chart-title">Monthly returns — last 5 years (data used in current Beta calculation)</div>

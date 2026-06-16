@@ -156,7 +156,7 @@ footer {
   line-height: 1.75; margin: 0;
 }
 
-/* ── ROLLING BETA CHART ── */
+/* ── ROLLING BETA ── */
 .rolling-section { padding: 0 28px 20px; }
 .rolling-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -177,13 +177,14 @@ footer {
 .event-dot.covid     { background: #d29922; }
 .event-dot.rate      { background: #9e6bdb; }
 .event-dot.recession { background: #3fb950; }
+.event-dot.oilwar    { background: #f97316; }
 
 .rolling-wrap { position: relative; height: 300px; }
 .rolling-caption {
   font-size: 11px; color: var(--text2); margin-top: 10px; line-height: 1.5;
 }
 
-/* ── DETAIL CHARTS (returns + guide) ── */
+/* ── DETAIL CHARTS ── */
 .detail-charts { display: flex; gap: 16px; padding: 0 28px 28px; flex-wrap: wrap; }
 .detail-charts .chart-box { min-width: 280px; }
 .detail-charts .chart-wrap { height: 280px; }
